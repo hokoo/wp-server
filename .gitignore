@@ -1,0 +1,12 @@
+# IDE generated files #
+#######################
+
+.idea
+.vscode
+
+# Others #
+#######################
+
+scripts/
+www/*
+nginx/conf.d/sites/*
