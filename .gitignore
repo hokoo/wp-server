@@ -9,4 +9,5 @@
 
 scripts/
 www/*
+!www/index.php
 nginx/conf.d/sites/*
