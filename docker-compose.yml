@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  mysql:
+    container_name: "${PROJECT_NAME}_Mysql"
+    image: mysql:5.7
+    stop_grace_period: 30s
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    ports:
+      - "3066:3306"
+    networks:
+      - itron-network
+
+  php:
+    build:
+      context: ./php-fpm
+      args:
+        BWP_PHP_VER: $PHP_TAG
+    container_name: "${PROJECT_NAME}_php"
+    environment:
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
+      DB_HOST: $DB_HOST
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $DB_NAME
+      PHP_FPM_USER: wodby
+      PHP_FPM_GROUP: wodby
+    volumes:
+      - ./www/:/srv/web/
+    networks:
+      - itron-network
+
+  nginx:
+    container_name: "${PROJECT_NAME}_nginx"
+    image: nginx:alpine
+    working_dir: /srv/web/
+    depends_on:
+      - php
+    volumes:
+      - ./www/:/srv/web/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/ssl/:/etc/nginx/ssl/
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - itron-network
+
+networks:
+  itron-network:
+    driver: bridge
