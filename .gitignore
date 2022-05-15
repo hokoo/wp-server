@@ -11,3 +11,4 @@ scripts/
 www/*
 !www/index.php
 nginx/conf.d/sites/*
+!nginx/conf.d/sites/index.conf
