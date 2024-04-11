@@ -19,8 +19,15 @@ services:
     build:
       context: ./php-fpm
       args:
-        BWP_PHP_VER: $PHP_TAG
+        PHP_VER: $PHP_VERSION
     container_name: "${PROJECT_NAME}_php"
+    extra_hosts:
+      - "${LOCALHOST0}:host-gateway"
+      - "${LOCALHOST1}:host-gateway"
+      - "${LOCALHOST2}:host-gateway"
+      - "${LOCALHOST_MAPPED0}:${EXT_HOST_MAPPED0}"
+      - "${LOCALHOST_MAPPED1}:${EXT_HOST_MAPPED1}"
+      - "${LOCALHOST_MAPPED2}:${EXT_HOST_MAPPED2}"
     environment:
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       DB_HOST: $DB_HOST
@@ -29,6 +36,16 @@ services:
       DB_NAME: $DB_NAME
       PHP_FPM_USER: wodby
       PHP_FPM_GROUP: wodby
+      PHP_IDE_CONFIG: $XDEBUG_IDE_CONFIG
+      PHP_XDEBUG: 1
+      PHP_XDEBUG_DEFAULT_ENABLE: 1
+      PHP_XDEBUG_CLIENT_HOST: host.docker.internal
+      PHP_XDEBUG_CLIENT_PORT: $XDEBUG_PORT
+      PHP_XDEBUG_MODE: $XDEBUG_MODE
+      PHP_XDEBUG_IDEKEY: $XDEBUG_IDE_KEY
+      PHP_XDEBUG_START_WITH_REQUEST: yes
+      PHP_XDEBUG_LOG: /srv/web/xdebug.log
+      PHP_EXTENSIONS_DISABLE: $EXTENSIONS_DISABLE
     volumes:
       - ./www/:/srv/web/
     networks:
@@ -47,6 +64,16 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - itron-network
+
+  node:
+    container_name: "${PROJECT_NAME}_node"
+    image: node:$NODE_VERSION
+    working_dir: /srv/web/
+    tty: true
+    volumes:
+      - ./www/:/srv/web/
     networks:
       - itron-network
 
